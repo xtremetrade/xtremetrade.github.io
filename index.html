@@ -2,59 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Xtreme Trade</title>
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <style>
-    body { margin: 0; background: #0e0e0e; font-family: Arial, sans-serif; }
-    #chart { height: 100vh; }
-    header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 50px;
-      background: #111;
+    body {
+      background-color: black;
       color: white;
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-weight: bold;
-      z-index: 10;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
     }
-    #chart { margin-top: 50px; }
+    h1 {
+      font-size: 3rem;
+      color: #00ffea;
+      text-shadow: 2px 2px 8px #008080;
+    }
   </style>
 </head>
 <body>
   <h1>Xtreme Trade</h1>
-  <div id="chart"></div>
-
-  <script>
-    const chart = LightweightCharts.createChart(document.getElementById("chart"), {
-      width: window.innerWidth,
-      height: window.innerHeight - 50,
-      layout: { background: { color: "#0e0e0e" }, textColor: "#fff" },
-      grid: { vertLines: { color: "#222" }, horzLines: { color: "#222" } },
-      timeScale: { timeVisible: true, secondsVisible: false },
-    });
-
-    const candleSeries = chart.addCandlestickSeries();
-
-    // Binance API se BTC/USDT ka data fetch karna
-    fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=100")
-      .then(res => res.json())
-      .then(data => {
-        const chartData = data.map(item => ({
-          time: item[0] / 1000,
-          open: parseFloat(item[1]),
-          high: parseFloat(item[2]),
-          low: parseFloat(item[3]),
-          close: parseFloat(item[4])
-        }));
-        candleSeries.setData(chartData);
-      });
-
-    // Resize handle
-    window.addEventListener("resize", () => {
-      chart.applyOptions({ width: window.innerWidth, height: window.innerHeight - 50 });
-    });
-  </script>
 </body>
 </html>
