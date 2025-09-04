@@ -1,121 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Xtremetrade - Crypto Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XtremeTrade - Crypto Dashboard</title>
   <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#111; color:#fff; }
-    header { background:#1a1a1a; padding:15px; display:flex; justify-content:space-between; align-items:center; }
-    header h1 { margin:0; color:#0f9dff; }
-    header nav a { color:#fff; margin-left:15px; text-decoration:none; }
-    .container { display:flex; height:calc(100vh - 60px); }
-    .sidebar { width:35%; overflow-y:auto; background:#141414; padding:10px; }
-    .main { flex:1; }
-    table { width:100%; border-collapse: collapse; margin-top:10px; }
-    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-    th { background:#222; }
-    tr:nth-child(even) { background:#1a1a1a; }
-    input { width:95%; padding:8px; margin:10px auto; display:block; border:none; border-radius:5px; }
-    button { background:#333; color:#fff; padding:10px 20px; margin:15px auto; display:block; border:none; border-radius:5px; cursor:pointer; }
-    button:hover { background:#555; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      height: 100vh;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #1e293b;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #38bdf8;
+    }
+    .coin {
+      padding: 8px 10px;
+      margin: 5px 0;
+      background: #334155;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+    .coin:hover {
+      background: #475569;
+    }
+    /* Main chart */
+    .main {
+      flex: 1;
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+    }
+    #tvChart {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <header>
-    <h1>Xtremetrade</h1>
-    <nav>
-      <a href="#">Home</a>
-      <a href="#">Markets</a>
-      <a href="#">About</a>
-      <a href="#">Login</a>
-    </nav>
-  </header>
-
-  <!-- Main Layout -->
-  <div class="container">
-    <!-- Sidebar: Crypto Table -->
-    <div class="sidebar">
-      <h2 style="text-align:center;">Live Cryptocurrency Prices</h2>
-      <input type="text" id="search" placeholder="Search coin...">
-      <table>
-        <thead>
-          <tr>
-            <th>Coin</th>
-            <th>Price (USD)</th>
-            <th>24h</th>
-            <th>Market Cap</th>
-          </tr>
-        </thead>
-        <tbody id="crypto-table"></tbody>
-      </table>
-      <button id="loadMore">Load More</button>
-    </div>
-
-    <!-- Main TradingView Chart -->
-    <div class="main">
-      <div class="tradingview-widget-container" style="height:100%; width:100%;">
-        <div id="tradingview_chart" style="height:100%; width:100%;"></div>
-      </div>
-    </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Crypto Watchlist</h2>
+    <div class="coin" data-symbol="BTCUSDT">Bitcoin (BTC)</div>
+    <div class="coin" data-symbol="ETHUSDT">Ethereum (ETH)</div>
+    <div class="coin" data-symbol="BNBUSDT">Binance Coin (BNB)</div>
+    <div class="coin" data-symbol="SOLUSDT">Solana (SOL)</div>
+    <div class="coin" data-symbol="ADAUSDT">Cardano (ADA)</div>
+    <div class="coin" data-symbol="DOGEUSDT">Dogecoin (DOGE)</div>
+    <div class="coin" data-symbol="XRPUSDT">XRP</div>
+    <div class="coin" data-symbol="MATICUSDT">Polygon (MATIC)</div>
   </div>
 
-  <!-- TradingView Script -->
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-  <script>
-    new TradingView.widget({
-      "width": "100%",
-      "height": "100%",
-      "symbol": "BINANCE:BTCUSDT",
-      "interval": "60",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "enable_publishing": false,
-      "hide_side_toolbar": false,
-      "allow_symbol_change": true,
-      "container_id": "tradingview_chart"
-    });
-  </script>
+  <!-- Main chart -->
+  <div class="main">
+    <div id="tvChart"></div>
+  </div>
 
-  <!-- Crypto Prices Script -->
+  <!-- TradingView Widget Script -->
+  <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    let page = 1;
-    async function loadCrypto() {
-      let res = await fetch(https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=${page});
-      let data = await res.json();
-
-      let html = "";
-      data.forEach(c => {
-        html += `
-          <tr>
-            <td>${c.name} (${c.symbol.toUpperCase()})</td>
-            <td>$${c.current_price.toLocaleString()}</td>
-            <td style="color:${c.price_change_percentage_24h >= 0 ? 'lime':'red'}">
-              ${c.price_change_percentage_24h?.toFixed(2)}%
-            </td>
-            <td>$${c.market_cap.toLocaleString()}</td>
-          </tr>`;
+    function loadChart(symbol) {
+      new TradingView.widget({
+        "container_id": "tvChart",
+        "autosize": true,
+        "symbol": "BINANCE:" + symbol,
+        "interval": "60",
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "enable_publishing": false,
+        "allow_symbol_change": true,
       });
-      document.getElementById("crypto-table").innerHTML += html;
     }
 
-    document.getElementById("loadMore").addEventListener("click", () => {
-      page++;
-      loadCrypto();
-    });
+    // Default load
+    loadChart("BTCUSDT");
 
-    document.getElementById("search").addEventListener("input", function() {
-      let filter = this.value.toLowerCase();
-      let rows = document.querySelectorAll("#crypto-table tr");
-      rows.forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+    // Sidebar click
+    document.querySelectorAll(".coin").forEach((c) => {
+      c.addEventListener("click", () => {
+        loadChart(c.getAttribute("data-symbol"));
       });
     });
-
-    loadCrypto();
   </script>
 </body>
 </html>
-
