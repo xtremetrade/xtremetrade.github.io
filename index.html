@@ -90,12 +90,13 @@
 
   <script>
     let page = 1;
-    const perPage = 50; // एक बार में 50 coins
+    const perPage = 50; // ek bar me 50 coins
     let coins = [];
     let currency = "inr";
 
     async function loadCoins(reset = false) {
-      const url = const url = https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false;
+      const url = https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false;
+
       try {
         const res = await fetch(url);
         if (!res.ok) {
@@ -151,7 +152,7 @@
       loadCoins();
     });
 
-    // हर 5 सेकंड में refresh
+    // Har 5 second me refresh
     setInterval(() => {
       loadCoins(true);
     }, 5000);
