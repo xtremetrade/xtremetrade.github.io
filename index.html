@@ -3,83 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xtremetrade</title>
+  <title>XtremeTrade</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #0d1117;
+      background: #121212;
       color: #fff;
-    }
-    header {
-      background: #161b22;
-      padding: 15px;
+      font-family: Arial, sans-serif;
       text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin: 20px 0;
       font-size: 28px;
-      font-weight: bold;
-      border-bottom: 1px solid #30363d;
     }
-    .controls {
-      display: flex;
-      justify-content: space-between;
+    #search {
+      width: 300px;
       padding: 10px;
-      background: #161b22;
-      border-bottom: 1px solid #30363d;
-    }
-    .controls input {
-      padding: 8px;
-      width: 60%;
+      margin: 20px;
       border-radius: 5px;
       border: none;
-      outline: none;
-    }
-    .controls select {
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-      outline: none;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #30363d;
-    }
-    th {
-      background: #21262d;
-    }
-    tr:hover {
-      background: #2d333b;
-    }
-    #loadMore {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background: #238636;
-      color: white;
-      cursor: pointer;
       font-size: 16px;
     }
+    #currency {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      margin-left: 10px;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background: #333;
+    }
+    tr:hover {
+      background: #2a2a2a;
+    }
+    #loadMore {
+      margin: 20px;
+      padding: 12px 25px;
+      background: #00c853;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
     #loadMore:hover {
-      background: #2ea043;
+      background: #009624;
     }
   </style>
 </head>
 <body>
-  <header>Xtremetrade</header>
+  <h1>XtremeTrade</h1>
 
-  <div class="controls">
-    <input type="text" id="search" placeholder="Search coin...">
-    <select id="currency">
-      <option value="usd">USD</option>
-      <option value="inr">INR</option>
-    </select>
-  </div>
+  <input type="text" id="search" placeholder="Search coins...">
+  <select id="currency">
+    <option value="inr">INR</option>
+    <option value="usd">USD</option>
+  </select>
 
   <table>
     <thead>
@@ -90,76 +83,82 @@
         <th>Market Cap</th>
       </tr>
     </thead>
-    <tbody id="cryptoTable"></tbody>
+    <tbody id="coinTable"></tbody>
   </table>
 
   <button id="loadMore">Load More</button>
 
   <script>
-    const tableBody = document.getElementById("cryptoTable");
-    const searchInput = document.getElementById("search");
-    const currencySelect = document.getElementById("currency");
-    const loadMoreBtn = document.getElementById("loadMore");
-
     let page = 1;
-    let perPage = 50;
-    let coinsData = [];
-    let currency = "usd";
+    const perPage = 50; // एक बार में 50 coins
+    let coins = [];
+    let currency = "inr";
 
-    async function fetchCoins(reset = false) {
+    async function loadCoins(reset = false) {
       const url = https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false;
-      const res = await fetch(url);
-      const data = await res.json();
 
-      if (reset) {
-        coinsData = [];
-        tableBody.innerHTML = "";
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const data = await res.json();
+
+        if (reset) {
+          coins = [];
+          page = 1;
+        }
+        coins = [...coins, ...data];
+        displayCoins();
+      } catch (err) {
+        console.error("Error loading coins:", err);
       }
-
-      coinsData = [...coinsData, ...data];
-      renderTable(coinsData);
     }
 
-    function renderTable(data) {
-      tableBody.innerHTML = "";
-      const searchValue = searchInput.value.toLowerCase();
+    function displayCoins() {
+      const table = document.getElementById("coinTable");
+      const search = document.getElementById("search").value.toLowerCase();
+      table.innerHTML = "";
 
-      data
-        .filter(coin => coin.name.toLowerCase().includes(searchValue) || coin.symbol.toLowerCase().includes(searchValue))
-        .forEach(coin => {
-          const row = `
-            <tr>
-              <td><img src="${coin.image}" width="20"> ${coin.name} (${coin.symbol.toUpperCase()})</td>
-              <td>${coin.current_price.toLocaleString()} ${currency.toUpperCase()}</td>
-              <td style="color:${coin.price_change_percentage_24h >= 0 ? 'lightgreen' : 'red'}">
-                ${coin.price_change_percentage_24h?.toFixed(2)}%
-              </td>
-              <td>${coin.market_cap.toLocaleString()}</td>
-            </tr>
+      coins
+        .filter(c => c.name.toLowerCase().includes(search) || c.symbol.toLowerCase().includes(search))
+        .forEach(c => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><img src="${c.image}" width="20"> ${c.name} (${c.symbol.toUpperCase()})</td>
+            <td>${c.current_price.toLocaleString()} ${currency.toUpperCase()}</td>
+            <td style="color:${c.price_change_percentage_24h >= 0 ? 'lightgreen':'red'};">
+              ${c.price_change_percentage_24h ? c.price_change_percentage_24h.toFixed(2) : 0}%
+            </td>
+            <td>${c.market_cap.toLocaleString()}</td>
           `;
-          tableBody.innerHTML += row;
+          table.appendChild(row);
         });
     }
 
-    searchInput.addEventListener("input", () => renderTable(coinsData));
-    currencySelect.addEventListener("change", () => {
-      currency = currencySelect.value;
+    // Search coins
+    document.getElementById("search").addEventListener("input", displayCoins);
+
+    // Currency change
+    document.getElementById("currency").addEventListener("change", (e) => {
+      currency = e.target.value;
       page = 1;
-      fetchCoins(true);
-    });
-    loadMoreBtn.addEventListener("click", () => {
-      page++;
-      fetchCoins();
+      loadCoins(true);
     });
 
-    // Auto refresh every 5 seconds
+    // Load more coins
+    document.getElementById("loadMore").addEventListener("click", () => {
+      page++;
+      loadCoins();
+    });
+
+    // हर 5 सेकंड में refresh
     setInterval(() => {
-      page = 1;
-      fetchCoins(true);
+      loadCoins(true);
     }, 5000);
 
-    // Initial load
-    fetchCoins();
+    // First load
+    loadCoins();
   </script>
 </body>
 </html>
