@@ -1,169 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>XtremeTrade — Dashboard</title>
-  <meta name="description" content="TradingView-style dark dashboard built in pure HTML/CSS/JS." />
-
+  <meta charset="UTF-8">
+  <title>Xtremetrade - Crypto Dashboard</title>
   <style>
-    :root{
-      --bg:#0b0f15; --panel:#0f1624; --panel2:#0d1420;
-      --text:#dbe5ff; --muted:#9fb0c7; --accent:#3b82f6; --border:#1f2a37;
-      --green:#22c55e; --red:#ef4444; --radius:16px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:var(--text); background:var(--bg);
-      background-image:
-        radial-gradient(1200px 800px at 10% -10%, rgba(59,130,246,.08), transparent 45%),
-        radial-gradient(900px 600px at 120% 0%, rgba(34,211,238,.06), transparent 40%);
-    }
-
-    /* Topbar */
-    .topbar{
-      position:sticky; top:0; z-index:20;
-      display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;
-      padding:10px 14px; background:linear-gradient(180deg, rgba(15,22,36,.98), rgba(15,22,36,.92));
-      border-bottom:1px solid var(--border); backdrop-filter:saturate(140%) blur(6px);
-    }
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-    .brand-badge{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#22d3ee)}
-    .brand span{letter-spacing:.3px}
-
-    .search{
-      display:flex;align-items:center;gap:8px;max-width:720px;margin:0 auto;
-      background:var(--panel2); border:1px solid var(--border); border-radius:24px; padding:8px 12px;
-    }
-    .search input{flex:1;background:transparent;border:0;outline:0;color:var(--text)}
-    .btn{border:1px solid var(--border); background:linear-gradient(180deg,#172033,#121a29);
-         color:var(--text); padding:8px 12px; border-radius:12px; cursor:pointer; font-weight:600}
-    .btn.primary{background:linear-gradient(180deg,#1d4ed8,#0f3ea0); border-color:#1e40af}
-
-    /* Layout */
-    .layout{display:grid; grid-template-columns:280px 1fr; height:calc(100vh - 58px)}
-    .sidebar{
-      background:var(--panel); border-right:1px solid var(--border); padding:14px; overflow:auto;
-    }
-    .side-title{font-size:12px; text-transform:uppercase; color:var(--muted); margin:2px 0 8px}
-    .watchlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
-    .row{
-      display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center;
-      padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--panel2);
-      cursor:pointer; transition:.15s transform, .15s background;
-    }
-    .row:hover{background:#0f1a2b; transform:translateY(-1px)}
-    .sym{font-weight:700}
-    .chg.up{color:var(--green)} .chg.down{color:var(--red)}
-
-    .main{position:relative; overflow:hidden; background:var(--panel)}
-    #tvChart{width:100%; height:100%}
-
-    /* Footer mini strip */
-    .strip{
-      position:absolute; left:10px; bottom:10px; display:flex; gap:8px; font-size:12px; color:var(--muted);
-      background:rgba(13,20,32,.6); border:1px solid var(--border); padding:6px 10px; border-radius:999px;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px){
-      .layout{grid-template-columns:1fr}
-      .sidebar{display:none}
-    }
+    body { margin:0; font-family: Arial, sans-serif; background:#111; color:#fff; }
+    header { background:#1a1a1a; padding:15px; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { margin:0; color:#0f9dff; }
+    header nav a { color:#fff; margin-left:15px; text-decoration:none; }
+    .container { display:flex; height:calc(100vh - 60px); }
+    .sidebar { width:35%; overflow-y:auto; background:#141414; padding:10px; }
+    .main { flex:1; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+    th { background:#222; }
+    tr:nth-child(even) { background:#1a1a1a; }
+    input { width:95%; padding:8px; margin:10px auto; display:block; border:none; border-radius:5px; }
+    button { background:#333; color:#fff; padding:10px 20px; margin:15px auto; display:block; border:none; border-radius:5px; cursor:pointer; }
+    button:hover { background:#555; }
   </style>
 </head>
 <body>
-  <!-- Top Navigation -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-badge"></div>
-      <span>XtremeTrade</span>
-    </div>
-
-    <div class="search">
-      <input id="symInput" placeholder="Search symbol (e.g. NSE:NIFTY, NASDAQ:TSLA)" />
-      <button class="btn" id="loadBtn">Load</button>
-    </div>
-
-    <div>
-      <button class="btn">Login</button>
-      <button class="btn primary">Sign Up</button>
-    </div>
+  <!-- Navbar -->
+  <header>
+    <h1>Xtremetrade</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Markets</a>
+      <a href="#">About</a>
+      <a href="#">Login</a>
+    </nav>
   </header>
 
-  <!-- Page Layout -->
-  <div class="layout">
-    <!-- Sidebar / Watchlist -->
-    <aside class="sidebar">
-      <div class="side-title">Watchlist</div>
-      <ul class="watchlist" id="watchlist">
-        <li class="row" data-symbol="NSE:NIFTY">
-          <span class="sym">NIFTY 50</span><span class="price">—</span><span class="chg up">+0.00%</span>
-        </li>
-        <li class="row" data-symbol="NSE:BANKNIFTY">
-          <span class="sym">BANKNIFTY</span><span class="price">—</span><span class="chg down">-0.00%</span>
-        </li>
-        <li class="row" data-symbol="NSE:RELIANCE">
-          <span class="sym">RELIANCE</span><span class="price">—</span><span class="chg up">+0.00%</span>
-        </li>
-        <li class="row" data-symbol="NASDAQ:AAPL">
-          <span class="sym">AAPL</span><span class="price">—</span><span class="chg up">+0.00%</span>
-        </li>
-        <li class="row" data-symbol="NASDAQ:TSLA">
-          <span class="sym">TSLA</span><span class="price">—</span><span class="chg down">-0.00%</span>
-        </li>
-      </ul>
-    </aside>
+  <!-- Main Layout -->
+  <div class="container">
+    <!-- Sidebar: Crypto Table -->
+    <div class="sidebar">
+      <h2 style="text-align:center;">Live Cryptocurrency Prices</h2>
+      <input type="text" id="search" placeholder="Search coin...">
+      <table>
+        <thead>
+          <tr>
+            <th>Coin</th>
+            <th>Price (USD)</th>
+            <th>24h</th>
+            <th>Market Cap</th>
+          </tr>
+        </thead>
+        <tbody id="crypto-table"></tbody>
+      </table>
+      <button id="loadMore">Load More</button>
+    </div>
 
-    <!-- Main / Chart -->
-    <main class="main">
-      <div id="tvChart"></div>
-      <div class="strip">Chart by TradingView • Demo UI</div>
-    </main>
+    <!-- Main TradingView Chart -->
+    <div class="main">
+      <div class="tradingview-widget-container" style="height:100%; width:100%;">
+        <div id="tradingview_chart" style="height:100%; width:100%;"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- TradingView script -->
-  <script src="https://s3.tradingview.com/tv.js"></script>
+  <!-- TradingView Script -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    // --- TradingView widget bootstrap
-    let tvWidget;
-    function loadChart(symbol = "NSE:NIFTY"){
-      tvWidget = new TradingView.widget({
-        container_id: "tvChart",
-        autosize: true,
-        symbol,
-        interval: "60",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        allow_symbol_change: true,
-        calendar: true
+    new TradingView.widget({
+      "width": "100%",
+      "height": "100%",
+      "symbol": "BINANCE:BTCUSDT",
+      "interval": "60",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "enable_publishing": false,
+      "hide_side_toolbar": false,
+      "allow_symbol_change": true,
+      "container_id": "tradingview_chart"
+    });
+  </script>
+
+  <!-- Crypto Prices Script -->
+  <script>
+    let page = 1;
+    async function loadCrypto() {
+      let res = await fetch(https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=${page});
+      let data = await res.json();
+
+      let html = "";
+      data.forEach(c => {
+        html += `
+          <tr>
+            <td>${c.name} (${c.symbol.toUpperCase()})</td>
+            <td>$${c.current_price.toLocaleString()}</td>
+            <td style="color:${c.price_change_percentage_24h >= 0 ? 'lime':'red'}">
+              ${c.price_change_percentage_24h?.toFixed(2)}%
+            </td>
+            <td>$${c.market_cap.toLocaleString()}</td>
+          </tr>`;
       });
+      document.getElementById("crypto-table").innerHTML += html;
     }
-    loadChart();
 
-    // Watchlist click -> update chart
-    document.getElementById("watchlist").addEventListener("click", (e)=>{
-      const row = e.target.closest("[data-symbol]");
-      if(!row) return;
-      const sym = row.getAttribute("data-symbol");
-      document.getElementById("tvChart").innerHTML = ""; // clear container
-      loadChart(sym);
+    document.getElementById("loadMore").addEventListener("click", () => {
+      page++;
+      loadCrypto();
     });
 
-    // Search box load
-    document.getElementById("loadBtn").addEventListener("click", ()=>{
-      const v = document.getElementById("symInput").value.trim();
-      if(!v) return;
-      document.getElementById("tvChart").innerHTML = "";
-      loadChart(v);
+    document.getElementById("search").addEventListener("input", function() {
+      let filter = this.value.toLowerCase();
+      let rows = document.querySelectorAll("#crypto-table tr");
+      rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+      });
     });
-    // Enter key support
-    document.getElementById("symInput").addEventListener("keydown",(e)=>{
-      if(e.key === "Enter") document.getElementById("loadBtn").click();
-    });
+
+    loadCrypto();
   </script>
 </body>
 </html>
+
