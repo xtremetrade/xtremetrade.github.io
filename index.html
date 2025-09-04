@@ -95,8 +95,7 @@
     let currency = "inr";
 
     async function loadCoins(reset = false) {
-      const url = https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false;
-
+      const url = const url = https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false;
       try {
         const res = await fetch(url);
         if (!res.ok) {
